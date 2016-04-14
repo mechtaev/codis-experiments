@@ -23,8 +23,7 @@ public class Main {
         Hole a = new Hole("a", BoolType.TYPE, Node.class);
         Hole b = new Hole("b", BoolType.TYPE, Node.class);
 
-        Z3 z3 = new Z3();
-        Synthesis synthesizer = new CBS(z3);
+        Synthesis synthesizer = new CBS(Z3.getInstance());
 
         Map<Node, Integer> componentMultiset = new HashMap<>();
         ProgramVariable x = new ProgramVariable("x", IntType.TYPE);

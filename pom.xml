@@ -18,7 +18,14 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <mainClass>sg.edu.nus.comp.codisexp.Main</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -27,15 +34,11 @@
             <groupId>com.microsoft.z3</groupId>
             <artifactId>z3</artifactId>
             <version>4</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/com.microsoft.z3.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>sg.edu.nus.comp.codis</groupId>
             <artifactId>codis</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/codis-1.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

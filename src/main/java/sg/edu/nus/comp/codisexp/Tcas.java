@@ -33,7 +33,20 @@ public class Tcas {
     private static ProgramVariable Other_Capability = ProgramVariable.mkInt("Other_Capability");
     private static ProgramVariable Climb_Inhibit = ProgramVariable.mkInt("Climb_Inhibit");
 
-    public static Map<Node, Integer> tcasComponents() {
+    private static ProgramVariable BV_Cur_Vertical_Sep = ProgramVariable.mkBV("Cur_Vertical_Sep", 32);
+    private static ProgramVariable BV_High_Confidence = ProgramVariable.mkBV("High_Confidence", 32);
+    private static ProgramVariable BV_Two_of_Three_Reports_Valid = ProgramVariable.mkBV("Two_of_Three_Reports_Valid", 32);
+    private static ProgramVariable BV_Own_Tracked_Alt = ProgramVariable.mkBV("Own_Tracked_Alt", 32);
+    private static ProgramVariable BV_Own_Tracked_Alt_Rate = ProgramVariable.mkBV("Own_Tracked_Alt_Rate", 32);
+    private static ProgramVariable BV_Other_Tracked_Alt = ProgramVariable.mkBV("Other_Tracked_Alt", 32);
+    private static ProgramVariable BV_Alt_Layer_Value = ProgramVariable.mkBV("Alt_Layer_Value", 32);
+    private static ProgramVariable BV_Up_Separation = ProgramVariable.mkBV("Up_Separation", 32);
+    private static ProgramVariable BV_Down_Separation = ProgramVariable.mkBV("Down_Separation", 32);
+    private static ProgramVariable BV_Other_RAC = ProgramVariable.mkBV("Other_RAC", 32);
+    private static ProgramVariable BV_Other_Capability = ProgramVariable.mkBV("Other_Capability", 32);
+    private static ProgramVariable BV_Climb_Inhibit = ProgramVariable.mkBV("Climb_Inhibit", 32);
+
+    public static Map<Node, Integer> tcasIntComponents() {
         Map<Node, Integer> componentMultiset = new HashMap<>();
         Parameter p1 = Parameter.mkInt("parameter1");
         Parameter p2 = Parameter.mkInt("parameter2");
@@ -57,11 +70,43 @@ public class Tcas {
         componentMultiset.put(Components.SUB, 1);
         componentMultiset.put(Components.GT, 1);
         componentMultiset.put(Components.GE, 1);
+        componentMultiset.put(Components.MINUS, 1);
+        componentMultiset.put(Components.ITE, 2);
         componentMultiset.put(Components.AND, 1);
         componentMultiset.put(Components.OR, 1);
-        componentMultiset.put(Components.MINUS, 1);
         componentMultiset.put(Components.NOT, 1);
-        componentMultiset.put(Components.ITE, 2);
+        return componentMultiset;
+    }
+
+    public static Map<Node, Integer> tcasBVComponents() {
+        Map<Node, Integer> componentMultiset = new HashMap<>();
+        Parameter p1 = Parameter.mkBV("parameter1", 32);
+        Parameter p2 = Parameter.mkBV("parameter2", 32);
+        componentMultiset.put(BVConst.ofLong(0, 32), 1);
+        componentMultiset.put(BVConst.ofLong(1, 32), 1);
+        componentMultiset.put(p1, 1);
+        componentMultiset.put(p2, 1);
+        componentMultiset.put(BV_Cur_Vertical_Sep, 1);
+        componentMultiset.put(BV_High_Confidence, 1);
+        componentMultiset.put(BV_Two_of_Three_Reports_Valid, 1);
+        componentMultiset.put(BV_Own_Tracked_Alt, 1);
+        componentMultiset.put(BV_Own_Tracked_Alt_Rate, 1);
+        componentMultiset.put(BV_Other_Tracked_Alt, 1);
+        componentMultiset.put(BV_Alt_Layer_Value, 1);
+        componentMultiset.put(BV_Up_Separation, 1);
+        componentMultiset.put(BV_Down_Separation, 1);
+        componentMultiset.put(BV_Other_RAC, 1);
+        componentMultiset.put(BV_Other_Capability, 1);
+        componentMultiset.put(BV_Climb_Inhibit, 1);
+        componentMultiset.put(Components.BVADD, 1);
+        componentMultiset.put(Components.BVSUB, 1);
+        componentMultiset.put(Components.BVSGT, 1); //FIXME: signed or unsigned?
+        componentMultiset.put(Components.BVSGE, 1);
+        componentMultiset.put(Components.BVNEG, 1);
+        componentMultiset.put(Components.BVITE, 2);
+        componentMultiset.put(Components.AND, 1);
+        componentMultiset.put(Components.OR, 1);
+        componentMultiset.put(Components.NOT, 1);
         return componentMultiset;
     }
 
@@ -83,7 +128,26 @@ public class Tcas {
         return new TestCase(assignment, IntConst.of(tcasTest.getResult()));
     }
 
-    public static ArrayList<TestCase> getTestSuite(int id, ArrayList<TcasTestCase> data) {
+    public static TestCase getBVTestById(int id, ArrayList<TcasTestCase> data) {
+        Map<ProgramVariable, Node> assignment = new HashMap<>();
+        TcasTestCase tcasTest = data.get(id);
+        assignment.put(BV_Cur_Vertical_Sep, BVConst.ofLong(tcasTest.getCur_Vertical_Sep(), 32));
+        assignment.put(BV_High_Confidence, BVConst.ofLong(tcasTest.getHigh_Confidence(), 32));
+        assignment.put(BV_Two_of_Three_Reports_Valid, BVConst.ofLong(tcasTest.getTwo_of_Three_Reports_Valid(), 32));
+        assignment.put(BV_Own_Tracked_Alt, BVConst.ofLong(tcasTest.getOwn_Tracked_Alt(), 32));
+        assignment.put(BV_Own_Tracked_Alt_Rate, BVConst.ofLong(tcasTest.getOwn_Tracked_Alt_Rate(), 32));
+        assignment.put(BV_Other_Tracked_Alt, BVConst.ofLong(tcasTest.getOther_Tracked_Alt(), 32));
+        assignment.put(BV_Alt_Layer_Value, BVConst.ofLong(tcasTest.getAlt_Layer_Value(), 32));
+        assignment.put(BV_Up_Separation, BVConst.ofLong(tcasTest.getUp_Separation(), 32));
+        assignment.put(BV_Down_Separation, BVConst.ofLong(tcasTest.getDown_Separation(), 32));
+        assignment.put(BV_Other_RAC, BVConst.ofLong(tcasTest.getOther_RAC(), 32));
+        assignment.put(BV_Other_Capability, BVConst.ofLong(tcasTest.getOther_Capability(), 32));
+        assignment.put(BV_Climb_Inhibit, BVConst.ofLong(tcasTest.getClimb_Inhibit(), 32));
+        return new TestCase(assignment, BVConst.ofLong(tcasTest.getResult(), 32));
+    }
+
+
+    public static ArrayList<TestCase> getTestSuite(int id, ArrayList<TcasTestCase> data, boolean useBVEncoding) {
         ArrayList<TestCase> testSuite = new ArrayList<>();
         Path path = FileSystems.getDefault().getPath("data", "semfix-suite-50-" + id);
         List<String> ids = null;
@@ -93,7 +157,11 @@ public class Tcas {
             e.printStackTrace();
         }
         for (String s : ids) {
-            testSuite.add(getTestById(Integer.parseInt(s), data));
+            if (useBVEncoding) {
+                testSuite.add(getBVTestById(Integer.parseInt(s), data));
+            } else {
+                testSuite.add(getTestById(Integer.parseInt(s), data));
+            }
         }
         return testSuite;
     }
@@ -112,13 +180,21 @@ public class Tcas {
 
     public static void synthesize() {
 
-        Synthesis synthesizer = new CEGIS(new CBS(Z3.getInstance()));
+        boolean useBVEncoding = true;
+
+        Synthesis synthesizer = new CEGIS(new CBS(Z3.getInstance(), useBVEncoding), Z3.getInstance());
 
         ArrayList<TcasTestCase> data = loadData();
 
-        Map<Node, Integer> componentMultiset = tcasComponents();
+        Map<Node, Integer> componentMultiset;
 
-        ArrayList<TestCase> testSuite = getTestSuite(1, data);
+        if (useBVEncoding) {
+            componentMultiset = tcasBVComponents();
+        } else {
+            componentMultiset = tcasIntComponents();
+        }
+
+        ArrayList<TestCase> testSuite = getTestSuite(1, data, useBVEncoding);
 
         Optional<Node> node = synthesizer.synthesize(testSuite, componentMultiset);
 

@@ -52,6 +52,7 @@ public class Tcas {
         Parameter p2 = Parameter.mkInt("parameter2");
         componentMultiset.put(IntConst.of(0), 1);
         componentMultiset.put(IntConst.of(1), 1);
+        componentMultiset.put(IntConst.of(2), 1);
         componentMultiset.put(p1, 1);
         componentMultiset.put(p2, 1);
         componentMultiset.put(Cur_Vertical_Sep, 1);
@@ -84,6 +85,7 @@ public class Tcas {
         Parameter p2 = Parameter.mkBV("parameter2", 32);
         componentMultiset.put(BVConst.ofLong(0, 32), 1);
         componentMultiset.put(BVConst.ofLong(1, 32), 1);
+        componentMultiset.put(BVConst.ofLong(2, 32), 1);
         componentMultiset.put(p1, 1);
         componentMultiset.put(p2, 1);
         componentMultiset.put(BV_Cur_Vertical_Sep, 1);
@@ -125,7 +127,7 @@ public class Tcas {
         assignment.put(Other_RAC, IntConst.of(tcasTest.getOther_RAC()));
         assignment.put(Other_Capability, IntConst.of(tcasTest.getOther_Capability()));
         assignment.put(Climb_Inhibit, IntConst.of(tcasTest.getClimb_Inhibit()));
-        return new TestCase(assignment, IntConst.of(tcasTest.getResult()));
+        return TestCase.ofAssignment(assignment, IntConst.of(tcasTest.getResult()));
     }
 
     public static TestCase getBVTestById(int id, ArrayList<TcasTestCase> data) {
@@ -143,7 +145,7 @@ public class Tcas {
         assignment.put(BV_Other_RAC, BVConst.ofLong(tcasTest.getOther_RAC(), 32));
         assignment.put(BV_Other_Capability, BVConst.ofLong(tcasTest.getOther_Capability(), 32));
         assignment.put(BV_Climb_Inhibit, BVConst.ofLong(tcasTest.getClimb_Inhibit(), 32));
-        return new TestCase(assignment, BVConst.ofLong(tcasTest.getResult(), 32));
+        return TestCase.ofAssignment(assignment, BVConst.ofLong(tcasTest.getResult(), 32));
     }
 
 

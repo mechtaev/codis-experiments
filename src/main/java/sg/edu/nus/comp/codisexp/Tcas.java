@@ -198,7 +198,7 @@ public class Tcas {
 
         ArrayList<TestCase> testSuite = getTestSuite(1, data, useBVEncoding);
 
-        Optional<Node> node = synthesizer.synthesize(testSuite, componentMultiset);
+        Optional<Node> node = synthesizer.synthesizeNode(testSuite, componentMultiset);
 
         if(node.isPresent()) {
             logger.info("Synthesized patch: " + node.get());

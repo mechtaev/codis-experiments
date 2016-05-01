@@ -182,7 +182,7 @@ public class Tcas {
 
         boolean useBVEncoding = true;
 
-        Synthesis synthesizer = new CEGIS(new CBS(Z3.getInstance(), useBVEncoding), Z3.getInstance());
+        Synthesis synthesizer = new CEGIS(new CBS(Z3.getInstance(), useBVEncoding, Optional.empty()), Z3.getInstance());
 
         ArrayList<TcasTestCase> data = loadData();
 

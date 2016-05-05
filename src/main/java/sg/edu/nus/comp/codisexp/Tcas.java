@@ -1,6 +1,8 @@
 package sg.edu.nus.comp.codisexp;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sg.edu.nus.comp.codis.*;
@@ -46,70 +48,66 @@ public class Tcas {
     private static ProgramVariable BV_Other_Capability = ProgramVariable.mkBV("Other_Capability", 32);
     private static ProgramVariable BV_Climb_Inhibit = ProgramVariable.mkBV("Climb_Inhibit", 32);
 
-    public static Map<Node, Integer> tcasIntComponents() {
-        Map<Node, Integer> componentMultiset = new HashMap<>();
-        Parameter p1 = Parameter.mkInt("parameter1");
-        Parameter p2 = Parameter.mkInt("parameter2");
-        componentMultiset.put(IntConst.of(0), 1);
-        componentMultiset.put(IntConst.of(1), 1);
-        componentMultiset.put(IntConst.of(2), 1);
-        componentMultiset.put(p1, 1);
-        componentMultiset.put(p2, 1);
-        componentMultiset.put(Cur_Vertical_Sep, 1);
-        componentMultiset.put(High_Confidence, 1);
-        componentMultiset.put(Two_of_Three_Reports_Valid, 1);
-        componentMultiset.put(Own_Tracked_Alt, 1);
-        componentMultiset.put(Own_Tracked_Alt_Rate, 1);
-        componentMultiset.put(Other_Tracked_Alt, 1);
-        componentMultiset.put(Alt_Layer_Value, 1);
-        componentMultiset.put(Up_Separation, 1);
-        componentMultiset.put(Down_Separation, 1);
-        componentMultiset.put(Other_RAC, 1);
-        componentMultiset.put(Other_Capability, 1);
-        componentMultiset.put(Climb_Inhibit, 1);
-        componentMultiset.put(Components.ADD, 1);
-        componentMultiset.put(Components.SUB, 1);
-        componentMultiset.put(Components.GT, 1);
-        componentMultiset.put(Components.GE, 1);
-        componentMultiset.put(Components.MINUS, 1);
-        componentMultiset.put(Components.ITE, 2);
-        componentMultiset.put(Components.AND, 1);
-        componentMultiset.put(Components.OR, 1);
-        componentMultiset.put(Components.NOT, 1);
-        return componentMultiset;
+    public static Multiset<Node> tcasIntComponents() {
+        Multiset<Node> components = HashMultiset.create();
+        components.add(IntConst.of(0));
+        components.add(IntConst.of(1));
+        components.add(IntConst.of(2));
+        components.add(Parameter.mkInt("parameter1"));
+        components.add(Parameter.mkInt("parameter2"));
+        components.add(Cur_Vertical_Sep);
+        components.add(High_Confidence);
+        components.add(Two_of_Three_Reports_Valid);
+        components.add(Own_Tracked_Alt);
+        components.add(Own_Tracked_Alt_Rate);
+        components.add(Other_Tracked_Alt);
+        components.add(Alt_Layer_Value);
+        components.add(Up_Separation);
+        components.add(Down_Separation);
+        components.add(Other_RAC);
+        components.add(Other_Capability);
+        components.add(Climb_Inhibit);
+        components.add(Components.ADD);
+        components.add(Components.SUB);
+        components.add(Components.GT);
+        components.add(Components.GE);
+        components.add(Components.MINUS);
+        components.add(Components.ITE, 2);
+        components.add(Components.AND);
+        components.add(Components.OR);
+        components.add(Components.NOT);
+        return components;
     }
 
-    public static Map<Node, Integer> tcasBVComponents() {
-        Map<Node, Integer> componentMultiset = new HashMap<>();
-        Parameter p1 = Parameter.mkBV("parameter1", 32);
-        Parameter p2 = Parameter.mkBV("parameter2", 32);
-        componentMultiset.put(BVConst.ofLong(0, 32), 1);
-        componentMultiset.put(BVConst.ofLong(1, 32), 1);
-        componentMultiset.put(BVConst.ofLong(2, 32), 1);
-        componentMultiset.put(p1, 1);
-        componentMultiset.put(p2, 1);
-        componentMultiset.put(BV_Cur_Vertical_Sep, 1);
-        componentMultiset.put(BV_High_Confidence, 1);
-        componentMultiset.put(BV_Two_of_Three_Reports_Valid, 1);
-        componentMultiset.put(BV_Own_Tracked_Alt, 1);
-        componentMultiset.put(BV_Own_Tracked_Alt_Rate, 1);
-        componentMultiset.put(BV_Other_Tracked_Alt, 1);
-        componentMultiset.put(BV_Alt_Layer_Value, 1);
-        componentMultiset.put(BV_Up_Separation, 1);
-        componentMultiset.put(BV_Down_Separation, 1);
-        componentMultiset.put(BV_Other_RAC, 1);
-        componentMultiset.put(BV_Other_Capability, 1);
-        componentMultiset.put(BV_Climb_Inhibit, 1);
-        componentMultiset.put(Components.BVADD, 1);
-        componentMultiset.put(Components.BVSUB, 1);
-        componentMultiset.put(Components.BVSGT, 1); //FIXME: signed or unsigned?
-        componentMultiset.put(Components.BVSGE, 1);
-        componentMultiset.put(Components.BVNEG, 1);
-        componentMultiset.put(Components.BVITE, 2);
-        componentMultiset.put(Components.AND, 1);
-        componentMultiset.put(Components.OR, 1);
-        componentMultiset.put(Components.NOT, 1);
-        return componentMultiset;
+    public static Multiset<Node> tcasBVComponents() {
+        Multiset<Node> components = HashMultiset.create();
+        components.add(BVConst.ofLong(0, 32));
+        components.add(BVConst.ofLong(1, 32));
+        components.add(BVConst.ofLong(2, 32));
+        components.add(Parameter.mkBV("parameter1", 32));
+        components.add(Parameter.mkBV("parameter2", 32));
+        components.add(BV_Cur_Vertical_Sep);
+        components.add(BV_High_Confidence);
+        components.add(BV_Two_of_Three_Reports_Valid);
+        components.add(BV_Own_Tracked_Alt);
+        components.add(BV_Own_Tracked_Alt_Rate);
+        components.add(BV_Other_Tracked_Alt);
+        components.add(BV_Alt_Layer_Value);
+        components.add(BV_Up_Separation);
+        components.add(BV_Down_Separation);
+        components.add(BV_Other_RAC);
+        components.add(BV_Other_Capability);
+        components.add(BV_Climb_Inhibit);
+        components.add(Components.BVADD);
+        components.add(Components.BVSUB);
+        components.add(Components.BVSGT); //FIXME: signed or unsigned?
+        components.add(Components.BVSGE);
+        components.add(Components.BVNEG);
+        components.add(Components.BVITE, 2);
+        components.add(Components.AND);
+        components.add(Components.OR);
+        components.add(Components.NOT);
+        return components;
     }
 
     public static TestCase getTestById(int id, ArrayList<TcasTestCase> data) {
@@ -182,23 +180,24 @@ public class Tcas {
 
     public static void synthesize() {
 
-        boolean useBVEncoding = true;
+        boolean useBVEncoding = false;
 
         Synthesis synthesizer = new CEGIS(new CBS(Z3.getInstance(), useBVEncoding, Optional.empty()), Z3.getInstance());
+        //Synthesis synthesizer = new CEGIS(new BoundedSynthesis(Z3.getInstance(), 3), Z3.getInstance());
 
         ArrayList<TcasTestCase> data = loadData();
 
-        Map<Node, Integer> componentMultiset;
+        Multiset<Node> components;
 
         if (useBVEncoding) {
-            componentMultiset = tcasBVComponents();
+            components = tcasBVComponents();
         } else {
-            componentMultiset = tcasIntComponents();
+            components = tcasIntComponents();
         }
 
         ArrayList<TestCase> testSuite = getTestSuite(1, data, useBVEncoding);
 
-        Optional<Node> node = synthesizer.synthesizeNode(testSuite, componentMultiset);
+        Optional<Node> node = synthesizer.synthesizeNode(testSuite, components);
 
         if(node.isPresent()) {
             logger.info("Synthesized patch: " + node.get());

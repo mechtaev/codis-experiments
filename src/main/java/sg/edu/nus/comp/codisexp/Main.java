@@ -26,6 +26,7 @@ public class Main {
         Logger logger = LoggerFactory.getLogger(Main.class);
 
         Tcas.synthesize();
+        //Tmp.run();
 
     }
 }

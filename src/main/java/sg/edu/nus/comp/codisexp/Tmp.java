@@ -2,9 +2,9 @@ package sg.edu.nus.comp.codisexp;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+import org.apache.commons.lang3.tuple.Pair;
 import sg.edu.nus.comp.codis.*;
-import sg.edu.nus.comp.codis.ast.Node;
-import sg.edu.nus.comp.codis.ast.ProgramVariable;
+import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.Add;
 import sg.edu.nus.comp.codis.ast.theory.IntConst;
 
@@ -19,7 +19,10 @@ import java.util.Optional;
 public class Tmp {
 
     static void run() {
-        Synthesis synthesizer = new CODIS(Z3.getInstance(), 2);
+        Solver solver = Z3.buildSolver();
+        InterpolatingSolver iSolver = Z3.buildInterpolatingSolver();
+
+        Synthesis synthesizer = new CODIS(solver, iSolver, 2);
 
         ProgramVariable x = ProgramVariable.mkInt("x");
         ProgramVariable y = ProgramVariable.mkInt("y");
@@ -50,7 +53,11 @@ public class Tmp {
         assignment3.put(z, IntConst.of(1));
         testSuite.add(TestCase.ofAssignment(assignment3, IntConst.of(3)));
 
-        Optional<Node> node = synthesizer.synthesizeNode(testSuite, components);
+        Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
 
+        if (result.isPresent()) {
+            Node node = result.get().getLeft().getSemantics(result.get().getRight());
+            System.out.println("Synthesized patch: " + node);
+        }
     }
 }

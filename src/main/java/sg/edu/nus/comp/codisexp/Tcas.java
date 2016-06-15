@@ -3,6 +3,7 @@ package sg.edu.nus.comp.codisexp;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sg.edu.nus.comp.codis.*;
@@ -182,9 +183,12 @@ public class Tcas {
 
         boolean useBVEncoding = false;
 
-        //Synthesis synthesizer = new CEGIS(new CBS(Z3.getInstance(), useBVEncoding, Optional.of(1)), Z3.getInstance());
-        //Synthesis synthesizer = new CEGIS(new CBS(Z3.getInstance(), useBVEncoding, Optional.empty()), Z3.getInstance());
-        Synthesis synthesizer = new CEGIS(new TreeBoundedSynthesis(MathSAT.getInstance(), 2, true), Z3.getInstance());
+        Solver solver = MathSAT.buildSolver();
+        InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
+
+        //Synthesis synthesizer = new CEGIS(new ComponentBasedSynthesis(solver, useBVEncoding, Optional.of(1)), solver);
+        //Synthesis synthesizer = new CEGIS(new ComponentBasedSynthesis(solver, useBVEncoding, Optional.empty()), solver);
+        Synthesis synthesizer = new CEGIS(new TreeBoundedSynthesis(iSolver, 2, true), solver);
 
         ArrayList<TcasTestCase> data = loadData();
 
@@ -198,11 +202,13 @@ public class Tcas {
 
         ArrayList<TestCase> testSuite = getTestSuite(1, data, useBVEncoding);
 
-        Optional<Node> node = synthesizer.synthesizeNode(testSuite, components);
+        Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
 
-        if(node.isPresent()) {
-            logger.info("Synthesized patch: " + node.get());
-            logger.info("Simplified: " + Simplifier.simplify(node.get()));
+
+        if(result.isPresent()) {
+            Node node = result.get().getLeft().getSemantics(result.get().getRight());
+            logger.info("Synthesized patch: " + node);
+            logger.info("Simplified: " + Simplifier.simplify(node));
         } else {
             logger.info("FAIL");
         }

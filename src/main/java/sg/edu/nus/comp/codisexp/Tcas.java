@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * Created by Sergey Mechtaev on 15/4/2016.
  */
-public class Tcas {
+public class Tcas implements Subject {
 
     private static Logger logger = LoggerFactory.getLogger(Tcas.class);
 
@@ -49,7 +49,7 @@ public class Tcas {
     private static ProgramVariable BV_Other_Capability = ProgramVariable.mkBV("Other_Capability", 32);
     private static ProgramVariable BV_Climb_Inhibit = ProgramVariable.mkBV("Climb_Inhibit", 32);
 
-    public static Multiset<Node> tcasIntComponents() {
+    private static Multiset<Node> tcasIntComponents() {
         Multiset<Node> components = HashMultiset.create();
         components.add(IntConst.of(0));
         components.add(IntConst.of(1));
@@ -68,19 +68,19 @@ public class Tcas {
         components.add(Other_RAC);
         components.add(Other_Capability);
         components.add(Climb_Inhibit);
-        components.add(Components.ADD);
-        components.add(Components.SUB);
-        components.add(Components.GT);
-        components.add(Components.GE);
-        components.add(Components.MINUS);
+        components.add(Components.ADD, 2);
+        components.add(Components.SUB, 2);
+        components.add(Components.GT, 2);
+        components.add(Components.GE, 2);
+        components.add(Components.MINUS, 2);
         components.add(Components.ITE, 2);
-        components.add(Components.AND);
-        components.add(Components.OR);
-        components.add(Components.NOT);
+        components.add(Components.AND, 2);
+        components.add(Components.OR, 2);
+        components.add(Components.NOT, 2);
         return components;
     }
 
-    public static Multiset<Node> tcasBVComponents() {
+    private static Multiset<Node> tcasBVComponents() {
         Multiset<Node> components = HashMultiset.create();
         components.add(BVConst.ofLong(0, 32));
         components.add(BVConst.ofLong(1, 32));
@@ -99,19 +99,19 @@ public class Tcas {
         components.add(BV_Other_RAC);
         components.add(BV_Other_Capability);
         components.add(BV_Climb_Inhibit);
-        components.add(Components.BVADD);
-        components.add(Components.BVSUB);
-        components.add(Components.BVSGT); //FIXME: signed or unsigned?
-        components.add(Components.BVSGE);
-        components.add(Components.BVNEG);
+        components.add(Components.BVADD, 2);
+        components.add(Components.BVSUB, 2);
+        components.add(Components.BVSGT, 2); //FIXME: signed or unsigned?
+        components.add(Components.BVSGE, 2);
+        components.add(Components.BVNEG, 2);
         components.add(Components.BVITE, 2);
-        components.add(Components.AND);
-        components.add(Components.OR);
-        components.add(Components.NOT);
+        components.add(Components.AND, 2);
+        components.add(Components.OR, 2);
+        components.add(Components.NOT, 2);
         return components;
     }
 
-    public static TestCase getTestById(int id, ArrayList<TcasTestCase> data) {
+    private static TestCase getTestById(int id, ArrayList<TcasTestCase> data) {
         Map<ProgramVariable, Node> assignment = new HashMap<>();
         TcasTestCase tcasTest = data.get(id);
         assignment.put(Cur_Vertical_Sep, IntConst.of(tcasTest.getCur_Vertical_Sep()));
@@ -129,7 +129,7 @@ public class Tcas {
         return TestCase.ofAssignment(assignment, IntConst.of(tcasTest.getResult()));
     }
 
-    public static TestCase getBVTestById(int id, ArrayList<TcasTestCase> data) {
+    private static TestCase getBVTestById(int id, ArrayList<TcasTestCase> data) {
         Map<ProgramVariable, Node> assignment = new HashMap<>();
         TcasTestCase tcasTest = data.get(id);
         assignment.put(BV_Cur_Vertical_Sep, BVConst.ofLong(tcasTest.getCur_Vertical_Sep(), 32));
@@ -148,7 +148,7 @@ public class Tcas {
     }
 
 
-    public static ArrayList<TestCase> getTestSuite(int id, ArrayList<TcasTestCase> data, boolean useBVEncoding) {
+    private static ArrayList<TestCase> getTestSuite(String id, ArrayList<TcasTestCase> data, boolean useBVEncoding) {
         ArrayList<TestCase> testSuite = new ArrayList<>();
         Path path = FileSystems.getDefault().getPath("data", "semfix-suite-50-" + id);
         List<String> ids = null;
@@ -167,7 +167,7 @@ public class Tcas {
         return testSuite;
     }
 
-    public static ArrayList<TcasTestCase> loadData() {
+    private static ArrayList<TcasTestCase> loadData() {
         Path path = FileSystems.getDefault().getPath("data", "tcas.json");
         String tcasData = "";
         try {
@@ -179,39 +179,35 @@ public class Tcas {
         return tcasTestData;
     }
 
-    public static void synthesize() {
+    @Override
+    public List<String> getTestSuiteIds() {
+        ArrayList<String> ids = new ArrayList<>();
+        ids.add("1-50");
+        ids.add("1-25");
+        ids.add("1-10");
+        return ids;
+    }
 
-        boolean useBVEncoding = false;
-
-        Solver solver = MathSAT.buildSolver();
-        InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
-
-        //Synthesis synthesizer = new CEGIS(new ComponentBasedSynthesis(solver, useBVEncoding, Optional.of(1)), solver);
-        //Synthesis synthesizer = new CEGIS(new ComponentBasedSynthesis(solver, useBVEncoding, Optional.empty()), solver);
-        Synthesis synthesizer = new CEGIS(new TreeBoundedSynthesis(iSolver, 2, true), solver);
-
+    @Override
+    public List<TestCase> getTestSuite(String id, boolean useBVEncoding) {
         ArrayList<TcasTestCase> data = loadData();
+        String[] idParts = id.split("-");
+        ArrayList<TestCase> testSuite = getTestSuite(idParts[0], data, useBVEncoding);
+        int size = Integer.parseInt(idParts[1]);
+        return testSuite.subList(0, size);
+    }
 
-        Multiset<Node> components;
-
+    @Override
+    public Multiset<Node> getComponents(boolean useBVEncoding) {
         if (useBVEncoding) {
-            components = tcasBVComponents();
+            return tcasBVComponents();
         } else {
-            components = tcasIntComponents();
+            return tcasIntComponents();
         }
+    }
 
-        ArrayList<TestCase> testSuite = getTestSuite(1, data, useBVEncoding);
-
-        Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
-
-
-        if(result.isPresent()) {
-            Node node = result.get().getLeft().getSemantics(result.get().getRight());
-            logger.info("Synthesized patch: " + node);
-            logger.info("Simplified: " + Simplifier.simplify(node));
-        } else {
-            logger.info("FAIL");
-        }
-
+    @Override
+    public String getName() {
+        return "SIR/TCAS";
     }
 }

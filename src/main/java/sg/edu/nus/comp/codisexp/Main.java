@@ -30,8 +30,9 @@ public class Main {
 
         List<Subject> subjects = new ArrayList<>();
         //subjects.add(new Tcas());
-        subjects.add(new Grade());
+        //subjects.add(new Grade());
         //subjects.add(new Median());
+        subjects.add(new Smallest());
 
         Solver solver = Z3.buildSolver();
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
@@ -47,8 +48,8 @@ public class Main {
         //synthesizers.put("TBS(2)", new TreeBoundedSynthesis(iSolver, 2, true));
         //synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, 3, true), solver));
         //synthesizers.put("CEGIS+TBS(2)", new CEGIS(new TreeBoundedSynthesis(iSolver, 2, true), solver));
-        //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, 2));
-        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, 3));
+        synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, 2));
+        //synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, 3));
 
         for (Map.Entry<String, Synthesis> entry : synthesizers.entrySet()) {
             logger.info("Evaluating " + entry.getKey() + " synthesizer");
@@ -57,7 +58,7 @@ public class Main {
                 logger.info("Subject: " + subject.getName());
                 List<String> ids = subject.getTestSuiteIds();
                 for (String id : ids) {
-                    //if (!id.equals("1-25")) continue;
+                    if (!id.equals("whitebox")) continue;
                     logger.info("Test suite: " + id);
                     List<TestCase> testSuite = subject.getTestSuite(id, useBVEncoding);
                     Multiset<Node> components = subject.getComponents(useBVEncoding);

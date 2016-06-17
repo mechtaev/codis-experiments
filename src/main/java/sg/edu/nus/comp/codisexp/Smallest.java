@@ -70,7 +70,13 @@ public class Smallest implements Subject {
         assignment.put(num2, IntConst.of(inputs.get(1)));
         assignment.put(num3, IntConst.of(inputs.get(2)));
         assignment.put(num4, IntConst.of(inputs.get(3)));
-        return TestCase.ofAssignment(assignment, IntConst.of(output));
+        TestCase testCase = TestCase.ofAssignment(assignment, IntConst.of(output));
+        if (whitebox) {
+            testCase.setId("w" + id);
+        } else {
+            testCase.setId("b" + id);
+        }
+        return testCase;
     }
 
 

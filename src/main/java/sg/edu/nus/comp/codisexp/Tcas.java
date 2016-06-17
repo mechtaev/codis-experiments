@@ -126,7 +126,9 @@ public class Tcas implements Subject {
         assignment.put(Other_RAC, IntConst.of(tcasTest.getOther_RAC()));
         assignment.put(Other_Capability, IntConst.of(tcasTest.getOther_Capability()));
         assignment.put(Climb_Inhibit, IntConst.of(tcasTest.getClimb_Inhibit()));
-        return TestCase.ofAssignment(assignment, IntConst.of(tcasTest.getResult()));
+        TestCase testCase = TestCase.ofAssignment(assignment, IntConst.of(tcasTest.getResult()));
+        testCase.setId(Integer.toString(id));
+        return testCase;
     }
 
     private static TestCase getBVTestById(int id, ArrayList<TcasTestCase> data) {
@@ -144,7 +146,9 @@ public class Tcas implements Subject {
         assignment.put(BV_Other_RAC, BVConst.ofLong(tcasTest.getOther_RAC(), 32));
         assignment.put(BV_Other_Capability, BVConst.ofLong(tcasTest.getOther_Capability(), 32));
         assignment.put(BV_Climb_Inhibit, BVConst.ofLong(tcasTest.getClimb_Inhibit(), 32));
-        return TestCase.ofAssignment(assignment, BVConst.ofLong(tcasTest.getResult(), 32));
+        TestCase testCase = TestCase.ofAssignment(assignment, BVConst.ofLong(tcasTest.getResult(), 32));
+        testCase.setId(Integer.toString(id));
+        return testCase;
     }
 
 

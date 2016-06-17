@@ -66,7 +66,13 @@ public class Median implements Subject {
         assignment.put(num1, IntConst.of(inputs.get(0)));
         assignment.put(num2, IntConst.of(inputs.get(1)));
         assignment.put(num3, IntConst.of(inputs.get(2)));
-        return TestCase.ofAssignment(assignment, IntConst.of(output));
+        TestCase testCase = TestCase.ofAssignment(assignment, IntConst.of(output));
+        if (whitebox) {
+            testCase.setId("w" + id);
+        } else {
+            testCase.setId("b" + id);
+        }
+        return testCase;
     }
 
 

@@ -78,7 +78,13 @@ public class Grade implements Subject {
         assignment.put(cval, IntConst.of(inputs.get(2)));
         assignment.put(dval, IntConst.of(inputs.get(3)));
         assignment.put(score, IntConst.of(inputs.get(4)));
-        return TestCase.ofAssignment(assignment, IntConst.of(output));
+        TestCase testCase = TestCase.ofAssignment(assignment, IntConst.of(output));
+        if (whitebox) {
+            testCase.setId("w" + id);
+        } else {
+            testCase.setId("b" + id);
+        }
+        return testCase;
     }
 
 

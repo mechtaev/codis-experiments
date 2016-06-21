@@ -3,7 +3,7 @@ package sg.edu.nus.comp.codisexp;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import sg.edu.nus.comp.codis.Components;
-import sg.edu.nus.comp.codis.TestCase;
+import sg.edu.nus.comp.codis.ast.TestCase;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
 
@@ -123,6 +123,6 @@ public class Smallest implements Subject {
 
     @Override
     public String getName() {
-        return "IntroClass/grade";
+        return "IntroClass/smallest";
     }
 }

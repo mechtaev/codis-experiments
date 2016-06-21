@@ -3,7 +3,7 @@ package sg.edu.nus.comp.codisexp;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import sg.edu.nus.comp.codis.Components;
-import sg.edu.nus.comp.codis.TestCase;
+import sg.edu.nus.comp.codis.ast.TestCase;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
 
@@ -42,7 +42,6 @@ public class Median implements Subject {
     }
 
     private static TestCase loadTestById(int id, boolean whitebox) {
-        ArrayList<TestCase> testSuite = new ArrayList<>();
         Path inputPath;
         Path outputPath;
         if (whitebox) {

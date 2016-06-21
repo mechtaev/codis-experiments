@@ -1,20 +1,14 @@
 package sg.edu.nus.comp.codisexp;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sg.edu.nus.comp.codis.*;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -30,8 +24,8 @@ public class Main {
         List<Subject> subjects = new ArrayList<>();
         //subjects.add(new Tcas());
         //subjects.add(new Grade());
-        //subjects.add(new Median());
-        subjects.add(new Smallest());
+        subjects.add(new Median());
+        //subjects.add(new Smallest());
 
         Solver solver = Z3.buildSolver();
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();

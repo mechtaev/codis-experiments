@@ -40,9 +40,10 @@ public class Main {
         //synthesizers.put("TBS(3)", new TreeBoundedSynthesis(iSolver, 3, true));
         //synthesizers.put("TBS(2)", new TreeBoundedSynthesis(iSolver, 2, true));
         //synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, 3, true), solver));
-        //synthesizers.put("CEGIS+TBS(2)", new CEGIS(new TreeBoundedSynthesis(iSolver, 2, true), solver));
-        //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, 2));
-        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, 3));
+        //synthesizers.put("CEGIS+TBS(5)", new CEGIS(new TreeBoundedSynthesis(iSolver, 4, true), solver));
+        //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, 2, Optional.empty()));
+        //synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, 3, Optional.empty()));
+        synthesizers.put("CODIS(3, 5)", new CODIS(solver, iSolver, 3, Optional.of(5)));
 
         for (Map.Entry<String, Synthesis> entry : synthesizers.entrySet()) {
             logger.info("Evaluating " + entry.getKey() + " synthesizer");
@@ -51,7 +52,7 @@ public class Main {
                 logger.info("Subject: " + subject.getName());
                 List<String> ids = subject.getTestSuiteIds();
                 for (String id : ids) {
-                    if (!id.equals("blackbox")) continue;
+                    //if (!id.equals("whitebox")) continue;
                     logger.info("Test suite: " + id);
                     List<TestCase> testSuite = subject.getTestSuite(id, useBVEncoding);
                     Multiset<Node> components = subject.getComponents(useBVEncoding);
@@ -76,7 +77,7 @@ public class Main {
         Solver solver = Z3.buildSolver();
         InterpolatingSolver iSolver = Z3.buildInterpolatingSolver();
 
-        Synthesis synthesizer = new CODIS(solver, iSolver, 2);
+        Synthesis synthesizer = new CODIS(solver, iSolver, 2, Optional.empty());
 
         ProgramVariable x = ProgramVariable.mkInt("x");
         ProgramVariable y = ProgramVariable.mkInt("y");
@@ -111,7 +112,7 @@ public class Main {
 
         if (result.isPresent()) {
             Node node = result.get().getLeft().getSemantics(result.get().getRight());
-            System.out.println("Synthesized patch: " + node);
+            System.out.println("Synthesized program: " + node);
         }
     }
 

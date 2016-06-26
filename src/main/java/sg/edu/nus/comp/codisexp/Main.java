@@ -2,6 +2,7 @@ package sg.edu.nus.comp.codisexp;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+import fj.data.Either;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,11 @@ public class Main {
 
     public static void main(String[] args) {
 
+//        if (true) {
+//            runTest2();
+//            return;
+//        }
+
         Logger logger = LoggerFactory.getLogger(Main.class);
 
         List<Subject> subjects = new ArrayList<>();
@@ -27,23 +33,23 @@ public class Main {
         subjects.add(new Median());
         //subjects.add(new Smallest());
 
-        Solver solver = Z3.buildSolver();
+        Solver solver = MathSAT.buildSolver();
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
 
         boolean useBVEncoding = false; // TODO: configure solver to compute BV interpolants
 
         Map<String, Synthesis> synthesizers = new HashMap<>();
 
-        //synthesizers.put("CBS", new ComponentBasedSynthesis(solver, true, Optional.empty()));
+        //synthesizers.put("CBS", new ComponentBasedSynthesis(solver, true, Optional.empty()));a
         //synthesizers.put("CEGIS+CBS", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.empty()), solver));
         //synthesizers.put("CEGIS+CBS(3)", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.of(3)), solver));
-        //synthesizers.put("TBS(3)", new TreeBoundedSynthesis(iSolver, 3, true));
-        //synthesizers.put("TBS(2)", new TreeBoundedSynthesis(iSolver, 2, true));
+        //synthesizers.put("TBS(3)", new TreeBoundedSynthesis(iSolver, new TBSConfig(3)));
+        //synthesizers.put("TBS(2)", new TreeBoundedSynthesis(iSolver, new TBSConfig(2)));
         //synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, 3, true), solver));
         //synthesizers.put("CEGIS+TBS(5)", new CEGIS(new TreeBoundedSynthesis(iSolver, 4, true), solver));
-        //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, 2, Optional.empty()));
-        //synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, 3, Optional.empty()));
-        synthesizers.put("CODIS(3, 5)", new CODIS(solver, iSolver, 3, Optional.of(5)));
+        //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, new CODISConfig(2)));
+        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, new CODISConfig(3)));
+        //synthesizers.put("CODIS(3, 5)", new CODIS(solver, iSolver, new CODISConfig(3).setTotalBound(5)));
 
         for (Map.Entry<String, Synthesis> entry : synthesizers.entrySet()) {
             logger.info("Evaluating " + entry.getKey() + " synthesizer");
@@ -73,11 +79,12 @@ public class Main {
         }
     }
 
-    static void runTest() {
+    static void runTest1() {
         Solver solver = Z3.buildSolver();
         InterpolatingSolver iSolver = Z3.buildInterpolatingSolver();
 
-        Synthesis synthesizer = new CODIS(solver, iSolver, 2, Optional.empty());
+        CODISConfig config = new CODISConfig(2);
+        Synthesis synthesizer = new CODIS(solver, iSolver, config);
 
         ProgramVariable x = ProgramVariable.mkInt("x");
         ProgramVariable y = ProgramVariable.mkInt("y");
@@ -115,5 +122,33 @@ public class Main {
             System.out.println("Synthesized program: " + node);
         }
     }
+
+    static void runTest2() {
+        InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
+
+        SynthesisWithLearning synthesizer = new TreeBoundedSynthesis(iSolver, new TBSConfig(3).enableConciseInterpolants());
+
+        ProgramVariable x = ProgramVariable.mkInt("x");
+        ProgramVariable y = ProgramVariable.mkInt("y");
+        ProgramVariable z = ProgramVariable.mkInt("z");
+
+        Multiset<Node> components = HashMultiset.create();
+        components.add(x);
+        components.add(y);
+        components.add(z);
+        components.add(Components.ADD);
+
+        ArrayList<TestCase> testSuite = new ArrayList<>();
+        Map<ProgramVariable, Node> assignment1 = new HashMap<>();
+        assignment1.put(x, IntConst.of(1));
+        assignment1.put(y, IntConst.of(1));
+        assignment1.put(z, IntConst.of(1));
+        testSuite.add(TestCase.ofAssignment(assignment1, IntConst.of(-1)));
+
+        Either<Pair<Program, Map<Parameter, Constant>>, Node> result = synthesizer.synthesizeOrLearn(testSuite, components);
+
+        System.out.println("Conflict: " + Printer.print(result.right().value()));
+    }
+
 
 }

@@ -29,8 +29,8 @@ public class Main {
         Logger logger = LoggerFactory.getLogger(Main.class);
 
         List<Subject> subjects = new ArrayList<>();
-        subjects.add(new Grade());
-        subjects.add(new Median());
+        //subjects.add(new Grade());
+        //subjects.add(new Median());
         subjects.add(new Smallest());
         subjects.add(new Tcas());
 
@@ -49,10 +49,10 @@ public class Main {
         //synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, 3, true), solver));
         //synthesizers.put("CEGIS+TBS(5)", new CEGIS(new TreeBoundedSynthesis(iSolver, new TBSConfig(5)), solver));
         //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, new CODISConfig(2)));
-        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, new CODISConfig(3)));
-        //synthesizers.put("CODIS-CL(3)", new CODIS(solver, iSolver, new CODISConfig(3).disableConflictLearning()));
-        //synthesizers.put("CODIS(3, 6)", new CODIS(solver, iSolver, new CODISConfig(3).setTotalBound(6)));
-        //synthesizers.put("CODIS-CL(3, 6)", new CODIS(solver, iSolver, new CODISConfig(3).setTotalBound(6).disableConflictLearning()));
+        CODISConfig config = new CODISConfig(3)
+                .setMaximumLeafExpansions(3)
+                .setIterationsBeforeRestart(50);
+        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, config));
 
         for (Map.Entry<String, Synthesis> entry : synthesizers.entrySet()) {
             logger.info("Evaluating " + entry.getKey() + " synthesizer");

@@ -6,7 +6,7 @@
 
     <groupId>sg.edu.nus.comp.codisexp</groupId>
     <artifactId>codisexp</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <build>
         <plugins>
@@ -26,14 +26,41 @@
                     <mainClass>sg.edu.nus.comp.codisexp.Main</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>sg.edu.nus.comp.codisexp.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
         <dependency>
-            <groupId>com.microsoft.z3</groupId>
-            <artifactId>z3</artifactId>
-            <version>4</version>
+            <groupId>mathsat.api</groupId>
+            <artifactId>mathsat</artifactId>
+            <version>5</version>
+        </dependency>
+        <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.33</version>
         </dependency>
         <dependency>
             <groupId>sg.edu.nus.comp.codis</groupId>

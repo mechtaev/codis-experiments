@@ -18,5 +18,4 @@ public interface Subject {
 
     Multiset<Node> getComponents(boolean useBVEncoding);
 
-    String getName();
 }

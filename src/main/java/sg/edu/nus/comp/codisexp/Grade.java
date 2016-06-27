@@ -34,11 +34,11 @@ public class Grade implements Subject {
         components.add(IntConst.of(4)); //failed
         components.add(Parameter.mkInt("parameter1"));
         components.add(Parameter.mkInt("parameter2"));
-        components.add(aval, 2);
-        components.add(bval, 2);
-        components.add(cval, 2);
-        components.add(dval, 2);
-        components.add(score, 2);
+        components.add(aval, 3);
+        components.add(bval, 3);
+        components.add(cval, 3);
+        components.add(dval, 3);
+        components.add(score, 3);
         components.add(Components.ADD, 2);
         components.add(Components.SUB, 2);
         components.add(Components.GT, 2);
@@ -129,8 +129,4 @@ public class Grade implements Subject {
         }
     }
 
-    @Override
-    public String getName() {
-        return "IntroClass/grade";
-    }
 }

@@ -26,9 +26,9 @@ public class Median implements Subject {
         Multiset<Node> components = HashMultiset.create();
         components.add(Parameter.mkInt("parameter1"));
         components.add(Parameter.mkInt("parameter2"));
-        components.add(num1, 2);
-        components.add(num2, 2);
-        components.add(num3, 2);
+        components.add(num1, 3);
+        components.add(num2, 3);
+        components.add(num3, 3);
         components.add(Components.ADD, 2);
         components.add(Components.SUB, 2);
         components.add(Components.GT, 2);
@@ -116,9 +116,5 @@ public class Median implements Subject {
         }
     }
 
-    @Override
-    public String getName() {
-        return "IntroClass/median";
-    }
 
 }

@@ -3,5 +3,7 @@
 lib
 target
 *.iml
+experiments.log
+log
 
 

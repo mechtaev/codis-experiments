@@ -209,8 +209,4 @@ public class Tcas implements Subject {
         }
     }
 
-    @Override
-    public String getName() {
-        return "SIR/TCAS";
-    }
 }

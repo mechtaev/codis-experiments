@@ -1,91 +1,167 @@
 package sg.edu.nus.comp.codisexp;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import fj.data.Either;
 import org.apache.commons.lang3.tuple.Pair;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sg.edu.nus.comp.codis.*;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
+
 import java.util.concurrent.TimeUnit;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Sergey Mechtaev on 7/4/2016.
  */
 public class Main {
 
-    public static void main(String[] args) {
+    @Option(name="-s", usage="subject name", metaVar="SUBJECT")
+    private String subjectName;
 
-//        if (true) {
-//            runTest2();
-//            return;
-//        }
+    @Option(name="-a", usage="synthesis algorithm", metaVar="ALGORITHM")
+    private String algorithm;
 
-        Logger logger = LoggerFactory.getLogger(Main.class);
+    @Option(name="-t", usage="test suite id", metaVar="TESTS")
+    private String testSuiteId;
 
-        List<Subject> subjects = new ArrayList<>();
-        //subjects.add(new Grade());
-        //subjects.add(new Median());
-        subjects.add(new Smallest());
-        subjects.add(new Tcas());
+    @Option(name="-l", usage="list available configurations (JSON)")
+    private boolean list;
+
+    @Argument
+    private List<String> arguments = new ArrayList<>();
+
+
+    private Map<String, Subject> subjects;
+    private Map<String, Synthesis> synthesizers;
+
+    {
+        subjects = new HashMap<>();
+        subjects.put("grade", new Grade());
+        subjects.put("median", new Median());
+        subjects.put("smallest", new Smallest());
+        subjects.put("tcas", new Tcas());
 
         Solver solver = MathSAT.buildSolver();
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
 
+        synthesizers = new HashMap<>();
+        synthesizers.put("CBS", new ComponentBasedSynthesis(solver, true, Optional.empty()));
+        synthesizers.put("CEGIS+CBS", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.empty()), solver));
+        synthesizers.put("TBS(3)", new TreeBoundedSynthesis(iSolver, new TBSConfig(3)));
+        synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, new TBSConfig(3)), solver));
+        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, new CODISConfig(3)
+                .setMaximumLeafExpansions(5)
+                .setIterationsBeforeRestart(50)
+                .disableConflictLearning()));
+    }
+
+
+    public static void main(String[] args) {
+        new Main().run(args);
+    }
+
+    private void run(String[] args) {
+        CmdLineParser parser = new CmdLineParser(this);
+
+        try {
+            parser.parseArgument(args);
+        } catch (CmdLineException e) {
+            System.out.println(e.getMessage());
+            parser.printUsage(System.err);
+            return;
+        }
+
+        if (list) {
+            printConfigs();
+            return;
+        }
+
+        Logger logger = LoggerFactory.getLogger(Main.class);
+
         boolean useBVEncoding = false; // TODO: configure solver to compute BV interpolants
 
-        Map<String, Synthesis> synthesizers = new HashMap<>();
+        Synthesis synthesizer = synthesizers.get(algorithm);
+        Subject subject = subjects.get(subjectName);
 
-        //synthesizers.put("CBS", new ComponentBasedSynthesis(solver, true, Optional.empty()));a
-        //synthesizers.put("CEGIS+CBS", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.empty()), solver));
-        //synthesizers.put("CEGIS+CBS(3)", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.of(3)), solver));
-        //synthesizers.put("TBS(3)", new TreeBoundedSynthesis(iSolver, new TBSConfig(3)));
-        //synthesizers.put("TBS(2)", new TreeBoundedSynthesis(iSolver, new TBSConfig(2)));
-        //synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, 3, true), solver));
-        //synthesizers.put("CEGIS+TBS(5)", new CEGIS(new TreeBoundedSynthesis(iSolver, new TBSConfig(5)), solver));
-        //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, new CODISConfig(2)));
-        CODISConfig config = new CODISConfig(3)
-                .setMaximumLeafExpansions(3)
-                .setIterationsBeforeRestart(50);
-        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, config));
+        logger.info("Evaluating algorithm " + algorithm + " on subject " + subjectName + " with test suite " + testSuiteId);
 
-        for (Map.Entry<String, Synthesis> entry : synthesizers.entrySet()) {
-            logger.info("Evaluating " + entry.getKey() + " synthesizer");
-            Synthesis synthesizer = entry.getValue();
-            for (Subject subject : subjects) {
-                logger.info("Subject: " + subject.getName());
-                List<String> ids = subject.getTestSuiteIds();
-                for (String id : ids) {
-                    //if (!id.equals("all")) continue;
-                    logger.info("Test suite: " + id);
-                    List<TestCase> testSuite = subject.getTestSuite(id, useBVEncoding);
-                    Multiset<Node> components = subject.getComponents(useBVEncoding);
-                    long startTime = System.currentTimeMillis();
+        List<TestCase> testSuite = subject.getTestSuite(testSuiteId, useBVEncoding);
+        Multiset<Node> components = subject.getComponents(useBVEncoding);
 
-                    Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
-                    long estimatedTimeMs = System.currentTimeMillis() - startTime;
-                    long estimatedTimeSec = TimeUnit.SECONDS.convert(estimatedTimeMs, TimeUnit.MILLISECONDS);
-                    logger.info("Time: " + estimatedTimeSec + " sec");
-                    if (result.isPresent()) {
-                        Node node = result.get().getLeft().getSemantics(result.get().getRight());
-                        logger.info("Synthesized patch: " + node);
-                        logger.info("Simplified: " + Simplifier.simplify(node));
-                    } else {
-                        logger.info("FAIL");
-                    }
-                }
-            }
+        long startTime = System.currentTimeMillis();
+
+        Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
+
+        long estimatedTimeMs = System.currentTimeMillis() - startTime;
+        long estimatedTimeSec = TimeUnit.SECONDS.convert(estimatedTimeMs, TimeUnit.MILLISECONDS);
+        logger.info("Time: " + estimatedTimeSec + " sec");
+
+        if (result.isPresent()) {
+            Node node = result.get().getLeft().getSemantics(result.get().getRight());
+            logger.info("Synthesized patch: " + node);
+            logger.info("Simplified: " + Simplifier.simplify(node));
+        } else {
+            logger.info("FAIL");
+        }
+    }
+
+    private void printConfigs() {
+        Configs configs = new Configs();
+        configs.setSubjects(subjects.keySet().stream()
+                .map(s -> new SubjectConfig(s, subjects.get(s).getTestSuiteIds()))
+                .collect(Collectors.toList()));
+        configs.setAlgorithms(new ArrayList<>(synthesizers.keySet()));
+        System.out.println(JSON.toJSONString(configs, SerializerFeature.PrettyFormat));
+
+    }
+
+    private class Configs {
+        private List<SubjectConfig> subjects;
+        private List<String> algorithms;
+        public List<SubjectConfig> getSubjects() {
+            return subjects;
+        }
+        public void setSubjects(List<SubjectConfig> subjects) {
+            this.subjects = subjects;
+        }
+        public List<String> getAlgorithms() {
+            return algorithms;
+        }
+        public void setAlgorithms(List<String> algorithms) {
+            this.algorithms = algorithms;
+        }
+    }
+
+    private class SubjectConfig {
+        private String name;
+        private List<String> tests;
+        public SubjectConfig(String name, List<String> tests) {
+            this.name = name;
+            this.tests = tests;
+        }
+        public String getName() {
+            return name;
+        }
+        public List<String> getTests() {
+            return tests;
         }
     }
 
     static void runTest1() {
-        Solver solver = Z3.buildSolver();
-        InterpolatingSolver iSolver = Z3.buildInterpolatingSolver();
+        Solver solver = MathSAT.buildSolver();
+        InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
 
         CODISConfig config = new CODISConfig(2);
         Synthesis synthesizer = new CODIS(solver, iSolver, config);

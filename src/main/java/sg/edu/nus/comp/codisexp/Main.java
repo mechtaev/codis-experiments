@@ -9,9 +9,10 @@ import org.slf4j.LoggerFactory;
 import sg.edu.nus.comp.codis.*;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
+import java.util.concurrent.TimeUnit;
+
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Sergey Mechtaev on 7/4/2016.
@@ -28,10 +29,10 @@ public class Main {
         Logger logger = LoggerFactory.getLogger(Main.class);
 
         List<Subject> subjects = new ArrayList<>();
-        //subjects.add(new Tcas());
-        //subjects.add(new Grade());
+        subjects.add(new Grade());
         subjects.add(new Median());
-        //subjects.add(new Smallest());
+        subjects.add(new Smallest());
+        subjects.add(new Tcas());
 
         Solver solver = MathSAT.buildSolver();
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
@@ -46,10 +47,12 @@ public class Main {
         //synthesizers.put("TBS(3)", new TreeBoundedSynthesis(iSolver, new TBSConfig(3)));
         //synthesizers.put("TBS(2)", new TreeBoundedSynthesis(iSolver, new TBSConfig(2)));
         //synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, 3, true), solver));
-        //synthesizers.put("CEGIS+TBS(5)", new CEGIS(new TreeBoundedSynthesis(iSolver, 4, true), solver));
+        //synthesizers.put("CEGIS+TBS(5)", new CEGIS(new TreeBoundedSynthesis(iSolver, new TBSConfig(5)), solver));
         //synthesizers.put("CODIS(2)", new CODIS(solver, iSolver, new CODISConfig(2)));
         synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, new CODISConfig(3)));
-        //synthesizers.put("CODIS(3, 5)", new CODIS(solver, iSolver, new CODISConfig(3).setTotalBound(5)));
+        //synthesizers.put("CODIS-CL(3)", new CODIS(solver, iSolver, new CODISConfig(3).disableConflictLearning()));
+        //synthesizers.put("CODIS(3, 6)", new CODIS(solver, iSolver, new CODISConfig(3).setTotalBound(6)));
+        //synthesizers.put("CODIS-CL(3, 6)", new CODIS(solver, iSolver, new CODISConfig(3).setTotalBound(6).disableConflictLearning()));
 
         for (Map.Entry<String, Synthesis> entry : synthesizers.entrySet()) {
             logger.info("Evaluating " + entry.getKey() + " synthesizer");
@@ -58,11 +61,12 @@ public class Main {
                 logger.info("Subject: " + subject.getName());
                 List<String> ids = subject.getTestSuiteIds();
                 for (String id : ids) {
-                    //if (!id.equals("whitebox")) continue;
+                    //if (!id.equals("all")) continue;
                     logger.info("Test suite: " + id);
                     List<TestCase> testSuite = subject.getTestSuite(id, useBVEncoding);
                     Multiset<Node> components = subject.getComponents(useBVEncoding);
                     long startTime = System.currentTimeMillis();
+
                     Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
                     long estimatedTimeMs = System.currentTimeMillis() - startTime;
                     long estimatedTimeSec = TimeUnit.SECONDS.convert(estimatedTimeMs, TimeUnit.MILLISECONDS);

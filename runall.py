@@ -5,7 +5,7 @@ import json
 import os
 import shutil
 
-TIMEOUT = 10
+TIMEOUT = 10 * 60
 
 if os.path.exists('log'):
     shutil.rmtree('log')

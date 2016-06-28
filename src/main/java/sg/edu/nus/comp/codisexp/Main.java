@@ -42,7 +42,6 @@ public class Main {
     @Argument
     private List<String> arguments = new ArrayList<>();
 
-
     private Map<String, Subject> subjects;
     private Map<String, Synthesis> synthesizers;
 
@@ -64,6 +63,11 @@ public class Main {
         synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, new CODISConfig(3)
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5)));
+        synthesizers.put("CODIS-DBG(3)", new CODIS(solver, iSolver, new CODISConfig(3)
+                .setIterationsBeforeRestart(100)
+                .setMaximumLeafExpansions(5)
+                .enableDebugMode()
+                .checkExpansionSatisfiability()));
         synthesizers.put("CODIS-NOCL(3)", new CODIS(solver, iSolver, new CODISConfig(3)
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5)
@@ -104,6 +108,13 @@ public class Main {
         Multiset<Node> components = subject.getComponents(useBVEncoding);
 
         long startTime = System.currentTimeMillis();
+
+//        List<Pair<Program, Map<Parameter, Constant>>> results = synthesizer.synthesizeAll(testSuite, components);
+//        logger.info("Found programs: " + results.size());
+//        for (Pair<Program, Map<Parameter, Constant>> result : results) {
+//            Node node = result.getLeft().getSemantics(result.getRight());
+//            logger.info(node.toString());
+//        }
 
         Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
 

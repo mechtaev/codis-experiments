@@ -63,10 +63,11 @@ public class Main {
         synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, new TBSConfig(3)), solver));
         synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, new CODISConfig(3)
                 .setIterationsBeforeRestart(100)
-                .setMaximumConflictsCheck(4)
+                .setMaximumLeafExpansions(5)
                 .forbidStructure()));
         synthesizers.put("CODIS-NOCL(3)", new CODIS(solver, iSolver, new CODISConfig(3)
                 .setIterationsBeforeRestart(100)
+                .setMaximumLeafExpansions(5)
                 .forbidStructure()
                 .disableConflictLearning()));
     }

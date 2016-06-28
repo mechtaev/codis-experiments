@@ -15,7 +15,7 @@ cmd_prefix = ['java', '-jar', 'target\codisexp-1.0-jar-with-dependencies.jar']
 
 configs = json.loads(subprocess.check_output(cmd_prefix + ['-l']).decode("utf-8"))
 
-for algorithm in configs['algorithms']:
+for algorithm in ['CODIS(3)', 'CODIS-NOCL(3)', 'CEGIS+CBS']:
     for subject in configs['subjects']:
         for tests in subject['tests']:
             cmd_suffix = ['-s', subject['name'], '-t', tests, '-a', algorithm]

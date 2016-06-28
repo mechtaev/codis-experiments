@@ -28,10 +28,10 @@ public class Smallest implements Subject {
         Multiset<Node> components = HashMultiset.create();
         components.add(Parameter.mkInt("parameter1"));
         components.add(Parameter.mkInt("parameter2"));
-        components.add(num1, 3);
-        components.add(num2, 3);
-        components.add(num3, 3);
-        components.add(num4, 3);
+        components.add(num1, 4);
+        components.add(num2, 4);
+        components.add(num3, 4);
+        components.add(num4, 4);
         components.add(Components.ADD, 2);
         components.add(Components.SUB, 2);
         components.add(Components.GT, 2);

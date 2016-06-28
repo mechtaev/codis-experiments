@@ -27,18 +27,18 @@ public class Grade implements Subject {
 
     private static Multiset<Node> gradeIntComponents() {
         Multiset<Node> components = HashMultiset.create();
-        components.add(IntConst.of(0)); //A
-        components.add(IntConst.of(1)); //B
-        components.add(IntConst.of(2)); //C
-        components.add(IntConst.of(3)); //D
-        components.add(IntConst.of(4)); //failed
+        components.add(IntConst.of(0), 2); //A
+        components.add(IntConst.of(1), 2); //B
+        components.add(IntConst.of(2), 2); //C
+        components.add(IntConst.of(3), 2); //D
+        components.add(IntConst.of(4), 2); //failed
         components.add(Parameter.mkInt("parameter1"));
         components.add(Parameter.mkInt("parameter2"));
         components.add(aval, 3);
         components.add(bval, 3);
         components.add(cval, 3);
         components.add(dval, 3);
-        components.add(score, 3);
+        components.add(score, 4);
         components.add(Components.ADD, 2);
         components.add(Components.SUB, 2);
         components.add(Components.GT, 2);

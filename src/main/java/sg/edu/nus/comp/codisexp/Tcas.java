@@ -110,7 +110,7 @@ public class Tcas implements Subject {
         return components;
     }
 
-    private static TestCase getTestById(int id, ArrayList<TcasTestCase> data) {
+    private static AssignmentTestCase getTestById(int id, ArrayList<TcasTestCase> data) {
         Map<ProgramVariable, Node> assignment = new HashMap<>();
         TcasTestCase tcasTest = data.get(id);
         assignment.put(Cur_Vertical_Sep, IntConst.of(tcasTest.getCur_Vertical_Sep()));
@@ -125,12 +125,12 @@ public class Tcas implements Subject {
         assignment.put(Other_RAC, IntConst.of(tcasTest.getOther_RAC()));
         assignment.put(Other_Capability, IntConst.of(tcasTest.getOther_Capability()));
         assignment.put(Climb_Inhibit, IntConst.of(tcasTest.getClimb_Inhibit()));
-        TestCase testCase = TestCase.ofAssignment(assignment, IntConst.of(tcasTest.getResult()));
+        AssignmentTestCase testCase = new AssignmentTestCase(assignment, IntConst.of(tcasTest.getResult()));
         testCase.setId(Integer.toString(id));
         return testCase;
     }
 
-    private static TestCase getBVTestById(int id, ArrayList<TcasTestCase> data) {
+    private static AssignmentTestCase getBVTestById(int id, ArrayList<TcasTestCase> data) {
         Map<ProgramVariable, Node> assignment = new HashMap<>();
         TcasTestCase tcasTest = data.get(id);
         assignment.put(BV_Cur_Vertical_Sep, BVConst.ofLong(tcasTest.getCur_Vertical_Sep(), 32));
@@ -145,14 +145,14 @@ public class Tcas implements Subject {
         assignment.put(BV_Other_RAC, BVConst.ofLong(tcasTest.getOther_RAC(), 32));
         assignment.put(BV_Other_Capability, BVConst.ofLong(tcasTest.getOther_Capability(), 32));
         assignment.put(BV_Climb_Inhibit, BVConst.ofLong(tcasTest.getClimb_Inhibit(), 32));
-        TestCase testCase = TestCase.ofAssignment(assignment, BVConst.ofLong(tcasTest.getResult(), 32));
+        AssignmentTestCase testCase = new AssignmentTestCase(assignment, BVConst.ofLong(tcasTest.getResult(), 32));
         testCase.setId(Integer.toString(id));
         return testCase;
     }
 
 
-    private static ArrayList<TestCase> getTestSuite(String id, ArrayList<TcasTestCase> data, boolean useBVEncoding) {
-        ArrayList<TestCase> testSuite = new ArrayList<>();
+    private static ArrayList<AssignmentTestCase> getTestSuite(String id, ArrayList<TcasTestCase> data, boolean useBVEncoding) {
+        ArrayList<AssignmentTestCase> testSuite = new ArrayList<>();
         Path path = FileSystems.getDefault().getPath("data", "semfix-suite-50-" + id);
         List<String> ids = null;
         try {
@@ -192,10 +192,10 @@ public class Tcas implements Subject {
     }
 
     @Override
-    public List<TestCase> getTestSuite(String id, boolean useBVEncoding) {
+    public List<AssignmentTestCase> getTestSuite(String id, boolean useBVEncoding) {
         ArrayList<TcasTestCase> data = loadData();
         String[] idParts = id.split("-");
-        ArrayList<TestCase> testSuite = getTestSuite(idParts[0], data, useBVEncoding);
+        ArrayList<AssignmentTestCase> testSuite = getTestSuite(idParts[0], data, useBVEncoding);
         int size = Integer.parseInt(idParts[1]);
         return testSuite.subList(0, size);
     }

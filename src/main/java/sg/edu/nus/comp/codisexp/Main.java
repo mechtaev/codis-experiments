@@ -60,15 +60,15 @@ public class Main {
         synthesizers.put("CEGIS+CBS", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.empty()), solver));
         synthesizers.put("TBS(3)", new TBSBuilder(iSolver, 3).build());
         synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TBSBuilder(iSolver, 3).build(), solver));
-        synthesizers.put("CODIS(3)", new CODISBuilder(solver, iSolver, 3)
+        synthesizers.put("CODIS(3)", new CODISBuilder(solver, iSolver, new SolverTester(solver), 3)
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5).build());
-        synthesizers.put("CODIS-DBG(3)", new CODISBuilder(solver, iSolver, 3)
+        synthesizers.put("CODIS-DBG(3)", new CODISBuilder(solver, iSolver, new SolverTester(solver), 3)
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5)
                 .enableDebugMode()
                 .checkExpansionSatisfiability().build());
-        synthesizers.put("CODIS-NOCL(3)", new CODISBuilder(solver, iSolver, 3)
+        synthesizers.put("CODIS-NOCL(3)", new CODISBuilder(solver, iSolver, new SolverTester(solver), 3)
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5)
                 .disableConflictLearning().build());
@@ -104,7 +104,7 @@ public class Main {
 
         logger.info("Evaluating algorithm " + algorithm + " on subject " + subjectName + " with test suite " + testSuiteId);
 
-        List<TestCase> testSuite = subject.getTestSuite(testSuiteId, useBVEncoding);
+        List<AssignmentTestCase> testSuite = subject.getTestSuite(testSuiteId, useBVEncoding);
         Multiset<Node> components = subject.getComponents(useBVEncoding);
 
         long startTime = System.currentTimeMillis();
@@ -177,7 +177,7 @@ public class Main {
         Solver solver = MathSAT.buildSolver();
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
 
-        Synthesis synthesizer = new CODISBuilder(solver, iSolver, 3).build();
+        Synthesis synthesizer = new CODISBuilder(solver, iSolver, new SolverTester(solver), 3).build();
 
         ProgramVariable x = ProgramVariable.mkInt("x");
         ProgramVariable y = ProgramVariable.mkInt("y");
@@ -194,19 +194,19 @@ public class Main {
         assignment1.put(x, IntConst.of(1));
         assignment1.put(y, IntConst.of(1));
         assignment1.put(z, IntConst.of(1));
-        testSuite.add(TestCase.ofAssignment(assignment1, IntConst.of(2)));
+        testSuite.add(new AssignmentTestCase(assignment1, IntConst.of(2)));
 
         Map<ProgramVariable, Node> assignment2 = new HashMap<>();
         assignment2.put(x, IntConst.of(2));
         assignment2.put(y, IntConst.of(1));
         assignment2.put(z, IntConst.of(1));
-        testSuite.add(TestCase.ofAssignment(assignment2, IntConst.of(3)));
+        testSuite.add(new AssignmentTestCase(assignment2, IntConst.of(3)));
 
         Map<ProgramVariable, Node> assignment3 = new HashMap<>();
         assignment3.put(x, IntConst.of(1));
         assignment3.put(y, IntConst.of(2));
         assignment3.put(z, IntConst.of(1));
-        testSuite.add(TestCase.ofAssignment(assignment3, IntConst.of(3)));
+        testSuite.add(new AssignmentTestCase(assignment3, IntConst.of(3)));
 
         Optional<Pair<Program, Map<Parameter, Constant>>> result = synthesizer.synthesize(testSuite, components);
 
@@ -236,7 +236,7 @@ public class Main {
         assignment1.put(x, IntConst.of(1));
         assignment1.put(y, IntConst.of(1));
         assignment1.put(z, IntConst.of(1));
-        testSuite.add(TestCase.ofAssignment(assignment1, IntConst.of(-1)));
+        testSuite.add(new AssignmentTestCase(assignment1, IntConst.of(-1)));
 
         Either<Pair<Program, Map<Parameter, Constant>>, Node> result = synthesizer.synthesizeOrLearn(testSuite, components);
 

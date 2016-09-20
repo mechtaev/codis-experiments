@@ -3,7 +3,7 @@ package sg.edu.nus.comp.codisexp;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import sg.edu.nus.comp.codis.Components;
-import sg.edu.nus.comp.codis.ast.TestCase;
+import sg.edu.nus.comp.codis.AssignmentTestCase;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
 
@@ -51,8 +51,8 @@ public class Grade implements Subject {
         return components;
     }
 
-    private static TestCase loadTestById(int id, boolean whitebox) {
-        ArrayList<TestCase> testSuite = new ArrayList<>();
+    private static AssignmentTestCase loadTestById(int id, boolean whitebox) {
+        ArrayList<AssignmentTestCase> testSuite = new ArrayList<>();
         Path inputPath;
         Path outputPath;
         if (whitebox) {
@@ -78,7 +78,7 @@ public class Grade implements Subject {
         assignment.put(cval, IntConst.of(inputs.get(2)));
         assignment.put(dval, IntConst.of(inputs.get(3)));
         assignment.put(score, IntConst.of(inputs.get(4)));
-        TestCase testCase = TestCase.ofAssignment(assignment, IntConst.of(output));
+        AssignmentTestCase testCase = new AssignmentTestCase(assignment, IntConst.of(output));
         if (whitebox) {
             testCase.setId("w" + id);
         } else {
@@ -98,10 +98,10 @@ public class Grade implements Subject {
     }
 
     @Override
-    public List<TestCase> getTestSuite(String id, boolean useBVEncoding) {
-        List<TestCase> whitebox = new ArrayList<>();
-        List<TestCase> blackbox = new ArrayList<>();
-        List<TestCase> all = new ArrayList<>();
+    public List<AssignmentTestCase> getTestSuite(String id, boolean useBVEncoding) {
+        List<AssignmentTestCase> whitebox = new ArrayList<>();
+        List<AssignmentTestCase> blackbox = new ArrayList<>();
+        List<AssignmentTestCase> all = new ArrayList<>();
         for (int i=1; i<=9; i++) {
             whitebox.add(loadTestById(i, true));
         }

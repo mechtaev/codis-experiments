@@ -3,7 +3,7 @@ package sg.edu.nus.comp.codisexp;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import sg.edu.nus.comp.codis.Components;
-import sg.edu.nus.comp.codis.ast.TestCase;
+import sg.edu.nus.comp.codis.AssignmentTestCase;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
 
@@ -44,8 +44,8 @@ public class Smallest implements Subject {
         return components;
     }
 
-    private static TestCase loadTestById(int id, boolean whitebox) {
-        ArrayList<TestCase> testSuite = new ArrayList<>();
+    private static AssignmentTestCase loadTestById(int id, boolean whitebox) {
+        ArrayList<AssignmentTestCase> testSuite = new ArrayList<>();
         Path inputPath;
         Path outputPath;
         if (whitebox) {
@@ -70,7 +70,7 @@ public class Smallest implements Subject {
         assignment.put(num2, IntConst.of(inputs.get(1)));
         assignment.put(num3, IntConst.of(inputs.get(2)));
         assignment.put(num4, IntConst.of(inputs.get(3)));
-        TestCase testCase = TestCase.ofAssignment(assignment, IntConst.of(output));
+        AssignmentTestCase testCase = new AssignmentTestCase(assignment, IntConst.of(output));
         if (whitebox) {
             testCase.setId("w" + id);
         } else {
@@ -90,10 +90,10 @@ public class Smallest implements Subject {
     }
 
     @Override
-    public List<TestCase> getTestSuite(String id, boolean useBVEncoding) {
-        List<TestCase> whitebox = new ArrayList<>();
-        List<TestCase> blackbox = new ArrayList<>();
-        List<TestCase> all = new ArrayList<>();
+    public List<AssignmentTestCase> getTestSuite(String id, boolean useBVEncoding) {
+        List<AssignmentTestCase> whitebox = new ArrayList<>();
+        List<AssignmentTestCase> blackbox = new ArrayList<>();
+        List<AssignmentTestCase> all = new ArrayList<>();
         for (int i=1; i<=8; i++) {
             whitebox.add(loadTestById(i, true));
         }

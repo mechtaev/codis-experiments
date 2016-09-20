@@ -58,20 +58,20 @@ public class Main {
         synthesizers = new HashMap<>();
         synthesizers.put("CBS", new ComponentBasedSynthesis(solver, true, Optional.empty()));
         synthesizers.put("CEGIS+CBS", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.empty()), solver));
-        synthesizers.put("TBS(3)", new TreeBoundedSynthesis(iSolver, new TBSConfig(3)));
-        synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TreeBoundedSynthesis(iSolver, new TBSConfig(3)), solver));
-        synthesizers.put("CODIS(3)", new CODIS(solver, iSolver, new CODISConfig(3)
+        synthesizers.put("TBS(3)", new TBSBuilder(iSolver, 3).build());
+        synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TBSBuilder(iSolver, 3).build(), solver));
+        synthesizers.put("CODIS(3)", new CODISBuilder(solver, iSolver, 3)
                 .setIterationsBeforeRestart(100)
-                .setMaximumLeafExpansions(5)));
-        synthesizers.put("CODIS-DBG(3)", new CODIS(solver, iSolver, new CODISConfig(3)
+                .setMaximumLeafExpansions(5).build());
+        synthesizers.put("CODIS-DBG(3)", new CODISBuilder(solver, iSolver, 3)
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5)
                 .enableDebugMode()
-                .checkExpansionSatisfiability()));
-        synthesizers.put("CODIS-NOCL(3)", new CODIS(solver, iSolver, new CODISConfig(3)
+                .checkExpansionSatisfiability().build());
+        synthesizers.put("CODIS-NOCL(3)", new CODISBuilder(solver, iSolver, 3)
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5)
-                .disableConflictLearning()));
+                .disableConflictLearning().build());
     }
 
 
@@ -177,8 +177,7 @@ public class Main {
         Solver solver = MathSAT.buildSolver();
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
 
-        CODISConfig config = new CODISConfig(2);
-        Synthesis synthesizer = new CODIS(solver, iSolver, config);
+        Synthesis synthesizer = new CODISBuilder(solver, iSolver, 3).build();
 
         ProgramVariable x = ProgramVariable.mkInt("x");
         ProgramVariable y = ProgramVariable.mkInt("y");
@@ -220,7 +219,7 @@ public class Main {
     static void runTest2() {
         InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
 
-        SynthesisWithLearning synthesizer = new TreeBoundedSynthesis(iSolver, new TBSConfig(3).enableConciseInterpolants());
+        SynthesisWithLearning synthesizer = new TBSBuilder(iSolver, 3).enableConciseInterpolants().build();
 
         ProgramVariable x = ProgramVariable.mkInt("x");
         ProgramVariable y = ProgramVariable.mkInt("y");

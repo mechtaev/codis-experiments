@@ -110,12 +110,12 @@ public class Main {
             return;
         }
 
+        init();
+
         if (list) {
             printConfigs();
             return;
         }
-
-        init();
 
         Logger logger = LoggerFactory.getLogger(Main.class);
 

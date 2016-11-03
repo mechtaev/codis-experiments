@@ -25,29 +25,79 @@ public class Grade implements Subject {
     private static ProgramVariable dval = ProgramVariable.mkInt("dval");
     private static ProgramVariable score = ProgramVariable.mkInt("score");
 
-    private static Multiset<Node> gradeIntComponents() {
+    private static Multiset<Node> gradeIntComponents(String id) {
         Multiset<Node> components = HashMultiset.create();
-        components.add(IntConst.of(0), 2); //A
-        components.add(IntConst.of(1), 2); //B
-        components.add(IntConst.of(2), 2); //C
-        components.add(IntConst.of(3), 2); //D
-        components.add(IntConst.of(4), 2); //failed
-        components.add(Parameter.mkInt("parameter1"));
-        components.add(Parameter.mkInt("parameter2"));
-        components.add(aval, 3);
-        components.add(bval, 3);
-        components.add(cval, 3);
-        components.add(dval, 3);
-        components.add(score, 4);
-        components.add(Components.ADD, 2);
-        components.add(Components.SUB, 2);
-        components.add(Components.GT, 2);
-        components.add(Components.GE, 2);
-        components.add(Components.MINUS, 2);
-        components.add(Components.ITE, 4);
-        components.add(Components.AND, 2);
-        components.add(Components.OR, 2);
-        components.add(Components.NOT, 2);
+
+        switch (id) {
+            case "adhoc":
+                components.add(IntConst.of(0), 2); //A
+                components.add(IntConst.of(1), 2); //B
+                components.add(IntConst.of(2), 2); //C
+                components.add(IntConst.of(3), 2); //D
+                components.add(IntConst.of(4), 2); //failed
+                components.add(Parameter.mkInt("parameter1"));
+                components.add(Parameter.mkInt("parameter2"));
+                components.add(aval, 3);
+                components.add(bval, 3);
+                components.add(cval, 3);
+                components.add(dval, 3);
+                components.add(score, 4);
+                components.add(Components.ADD, 2);
+                components.add(Components.SUB, 2);
+                components.add(Components.GT, 2);
+                components.add(Components.GE, 2);
+                components.add(Components.MINUS, 2);
+                components.add(Components.ITE, 4);
+                components.add(Components.AND, 2);
+                components.add(Components.OR, 2);
+                components.add(Components.NOT, 2);
+                break;
+            case "25":
+                components.add(IntConst.of(0), 1); //A
+                components.add(IntConst.of(1), 1); //B
+                components.add(IntConst.of(2), 1); //C
+                components.add(IntConst.of(3), 1); //D
+                components.add(IntConst.of(4), 1); //failed
+                components.add(Parameter.mkInt("parameter1"));
+                components.add(aval, 2);
+                components.add(bval, 2);
+                components.add(cval, 2);
+                components.add(dval, 2);
+                components.add(score, 2);
+                components.add(Components.ADD, 1);
+                components.add(Components.SUB, 1);
+                components.add(Components.GT, 1);
+                components.add(Components.GE, 1);
+                components.add(Components.MINUS, 1);
+                components.add(Components.ITE,2);
+                components.add(Components.AND, 1);
+                components.add(Components.OR, 1);
+                components.add(Components.NOT, 1);
+                break;
+            case "50":
+                components.add(IntConst.of(0), 2); //A
+                components.add(IntConst.of(1), 2); //B
+                components.add(IntConst.of(2), 2); //C
+                components.add(IntConst.of(3), 2); //D
+                components.add(IntConst.of(4), 2); //failed
+                components.add(Parameter.mkInt("parameter1"));
+                components.add(Parameter.mkInt("parameter2"));
+                components.add(aval, 4);
+                components.add(bval, 4);
+                components.add(cval, 4);
+                components.add(dval, 4);
+                components.add(score, 4);
+                components.add(Components.ADD, 2);
+                components.add(Components.SUB, 2);
+                components.add(Components.GT, 2);
+                components.add(Components.GE, 2);
+                components.add(Components.MINUS, 2);
+                components.add(Components.ITE, 4);
+                components.add(Components.AND, 2);
+                components.add(Components.OR, 2);
+                components.add(Components.NOT, 2);
+                break;
+        }
         return components;
     }
 
@@ -120,12 +170,22 @@ public class Grade implements Subject {
     }
 
     @Override
-    public Multiset<Node> getComponents(boolean useBVEncoding) {
+    public List<String> getComponentsIds() {
+        ArrayList<String> ids = new ArrayList<>();
+        ids.add("adhoc");
+        ids.add("25");
+        ids.add("50");
+        return ids;
+    }
+
+
+    @Override
+    public Multiset<Node> getComponents(String id, String testId, boolean useBVEncoding) {
         if (useBVEncoding) {
             throw new UnsupportedOperationException();
             //return gradeBVComponents();
         } else {
-            return gradeIntComponents();
+            return gradeIntComponents(id);
         }
     }
 

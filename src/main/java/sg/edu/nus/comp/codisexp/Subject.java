@@ -16,6 +16,8 @@ public interface Subject {
 
     List<AssignmentTestCase> getTestSuite(String id, boolean useBVEncoding);
 
-    Multiset<Node> getComponents(boolean useBVEncoding);
+    List<String> getComponentsIds();
+
+    Multiset<Node> getComponents(String id, String testId, boolean useBVEncoding);
 
 }

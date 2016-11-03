@@ -16,6 +16,8 @@ import sg.edu.nus.comp.codis.*;
 import sg.edu.nus.comp.codis.ast.*;
 import sg.edu.nus.comp.codis.ast.theory.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -33,11 +35,17 @@ public class Main {
     @Option(name="-a", usage="synthesis algorithm", metaVar="ALGORITHM")
     private String algorithm;
 
+    @Option(name="-c", usage="multiset of components", metaVar="COMPONENTS")
+    private String componentsId;
+
     @Option(name="-t", usage="test suite id", metaVar="TESTS")
     private String testSuiteId;
 
     @Option(name="-l", usage="list available configurations (JSON)")
     private boolean list;
+
+    @Option(name="-b", usage="use bitvector encoding")
+    private boolean bvEncoding;
 
     @Argument
     private List<String> arguments = new ArrayList<>();
@@ -45,20 +53,29 @@ public class Main {
     private Map<String, Subject> subjects;
     private Map<String, Synthesis> synthesizers;
 
-    {
+    void init() {
         subjects = new HashMap<>();
         subjects.put("grade", new Grade());
         subjects.put("median", new Median());
         subjects.put("smallest", new Smallest());
         subjects.put("tcas", new Tcas());
+        subjects.put("icfp", new ICFP());
 
         Solver solver = MathSAT.buildSolver();
-        InterpolatingSolver iSolver = MathSAT.buildInterpolatingSolver();
+        InterpolatingSolver iSolver;
+        // FIXME: this is a temporary solution:
+        if (bvEncoding) {
+            iSolver = new FakeInterpolatingSolver(MathSAT.buildSolver());
+        } else {
+            iSolver = MathSAT.buildInterpolatingSolver();
+        }
 
         synthesizers = new HashMap<>();
         synthesizers.put("CBS", new ComponentBasedSynthesis(solver, true, Optional.empty()));
         synthesizers.put("CEGIS+CBS", new CEGIS(new ComponentBasedSynthesis(solver, true, Optional.empty()), solver));
         synthesizers.put("TBS(3)", new TBSBuilder(iSolver, 3).build());
+        synthesizers.put("TBS(4)", new TBSBuilder(iSolver, 4).build());
+        synthesizers.put("TBS(5)", new TBSBuilder(iSolver, 5).build());
         synthesizers.put("CEGIS+TBS(3)", new CEGIS(new TBSBuilder(iSolver, 3).build(), solver));
         synthesizers.put("CODIS(3)", new CODISBuilder(solver, iSolver, new SolverTester(solver), 3)
                 .setIterationsBeforeRestart(100)
@@ -72,8 +89,11 @@ public class Main {
                 .setIterationsBeforeRestart(100)
                 .setMaximumLeafExpansions(5)
                 .disableConflictLearning().build());
+        synthesizers.put("CODIS-NOCL(4)", new CODISBuilder(solver, iSolver, new SolverTester(solver), 4)
+                .setIterationsBeforeRestart(100)
+                .setMaximumLeafExpansions(5)
+                .disableConflictLearning().build());
     }
-
 
     public static void main(String[] args) {
         new Main().run(args);
@@ -95,17 +115,17 @@ public class Main {
             return;
         }
 
-        Logger logger = LoggerFactory.getLogger(Main.class);
+        init();
 
-        boolean useBVEncoding = false; // TODO: configure solver to compute BV interpolants
+        Logger logger = LoggerFactory.getLogger(Main.class);
 
         Synthesis synthesizer = synthesizers.get(algorithm);
         Subject subject = subjects.get(subjectName);
 
-        logger.info("Evaluating algorithm " + algorithm + " on subject " + subjectName + " with test suite " + testSuiteId);
+        logger.info("Evaluating algorithm " + algorithm + " on subject " + subjectName + " with test suite " + testSuiteId + " and components " + componentsId);
 
-        List<AssignmentTestCase> testSuite = subject.getTestSuite(testSuiteId, useBVEncoding);
-        Multiset<Node> components = subject.getComponents(useBVEncoding);
+        List<AssignmentTestCase> testSuite = subject.getTestSuite(testSuiteId, bvEncoding);
+        Multiset<Node> components = subject.getComponents(componentsId, testSuiteId, bvEncoding);
 
         long startTime = System.currentTimeMillis();
 
@@ -134,7 +154,7 @@ public class Main {
     private void printConfigs() {
         Configs configs = new Configs();
         configs.setSubjects(subjects.keySet().stream()
-                .map(s -> new SubjectConfig(s, subjects.get(s).getTestSuiteIds()))
+                .map(s -> new SubjectConfig(s, subjects.get(s).getTestSuiteIds(), subjects.get(s).getComponentsIds()))
                 .collect(Collectors.toList()));
         configs.setAlgorithms(new ArrayList<>(synthesizers.keySet()));
         System.out.println(JSON.toJSONString(configs, SerializerFeature.PrettyFormat));
@@ -161,15 +181,20 @@ public class Main {
     private class SubjectConfig {
         private String name;
         private List<String> tests;
-        public SubjectConfig(String name, List<String> tests) {
+        private List<String> components;
+        public SubjectConfig(String name, List<String> tests, List<String> components) {
             this.name = name;
             this.tests = tests;
+            this.components = components;
         }
         public String getName() {
             return name;
         }
         public List<String> getTests() {
             return tests;
+        }
+        public List<String> getComponents() {
+            return components;
         }
     }
 

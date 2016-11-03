@@ -98,12 +98,12 @@ public class Tcas implements Subject {
         components.add(BV_Other_RAC, 2);
         components.add(BV_Other_Capability, 2);
         components.add(BV_Climb_Inhibit, 2);
-        components.add(Components.BVADD, 2);
-        components.add(Components.BVSUB, 2);
-        components.add(Components.BVSGT, 2); //FIXME: signed or unsigned?
-        components.add(Components.BVSGE, 2);
-        components.add(Components.BVNEG, 2);
-        components.add(Components.BVITE, 4);
+        components.add(Components.ofSize(32).BVADD, 2);
+        components.add(Components.ofSize(32).BVSUB, 2);
+        components.add(Components.ofSize(32).BVSGT, 2); //FIXME: signed or unsigned?
+        components.add(Components.ofSize(32).BVSGE, 2);
+        components.add(Components.ofSize(32).BVNEG, 2);
+        components.add(Components.ofSize(32).BVITE, 4);
         components.add(Components.AND, 2);
         components.add(Components.OR, 2);
         components.add(Components.NOT, 2);
@@ -201,7 +201,15 @@ public class Tcas implements Subject {
     }
 
     @Override
-    public Multiset<Node> getComponents(boolean useBVEncoding) {
+    public List<String> getComponentsIds() {
+        ArrayList<String> ids = new ArrayList<>();
+        ids.add("adhoc");
+        return ids;
+    }
+
+
+    @Override
+    public Multiset<Node> getComponents(String id, String testId, boolean useBVEncoding) {
         if (useBVEncoding) {
             return tcasBVComponents();
         } else {

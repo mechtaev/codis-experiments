@@ -22,22 +22,61 @@ public class Median implements Subject {
     private static ProgramVariable num2 = ProgramVariable.mkInt("num2");
     private static ProgramVariable num3 = ProgramVariable.mkInt("num3");
 
-    private static Multiset<Node> gradeIntComponents() {
+    private static Multiset<Node> gradeIntComponents(String set) {
         Multiset<Node> components = HashMultiset.create();
-        components.add(Parameter.mkInt("parameter1"));
-        components.add(Parameter.mkInt("parameter2"));
-        components.add(num1, 4);
-        components.add(num2, 4);
-        components.add(num3, 4);
-        components.add(Components.ADD, 2);
-        components.add(Components.SUB, 2);
-        components.add(Components.GT, 2);
-        components.add(Components.GE, 2);
-        components.add(Components.MINUS, 2);
-        components.add(Components.ITE, 4);
-        components.add(Components.AND, 2);
-        components.add(Components.OR, 2);
-        components.add(Components.NOT, 2);
+
+        switch (set) {
+            case "adhoc":
+                components.add(Parameter.mkInt("parameter1"));
+                components.add(Parameter.mkInt("parameter2"));
+                components.add(num1, 4);
+                components.add(num2, 4);
+                components.add(num3, 4);
+                components.add(Components.ADD, 2);
+                components.add(Components.SUB, 2);
+                components.add(Components.GT, 2);
+                components.add(Components.GE, 2);
+                components.add(Components.MINUS, 2);
+                components.add(Components.ITE, 4);
+                components.add(Components.AND, 2);
+                components.add(Components.OR, 2);
+                components.add(Components.NOT, 2);
+                break;
+            case "25":
+                components.add(Parameter.mkInt("parameter1"));
+                components.add(Parameter.mkInt("parameter2"));
+                components.add(num1, 2);
+                components.add(num2, 2);
+                components.add(num3, 2);
+                components.add(Components.ADD, 2);
+                components.add(Components.SUB, 2);
+                components.add(Components.GT, 2);
+                components.add(Components.GE, 2);
+                components.add(Components.MINUS, 2);
+                components.add(Components.ITE, 4);
+                components.add(Components.AND, 2);
+                components.add(Components.OR, 2);
+                components.add(Components.NOT, 1);
+                break;
+            case "50":
+                components.add(Parameter.mkInt("parameter1"));
+                components.add(Parameter.mkInt("parameter2"));
+                components.add(Parameter.mkInt("parameter3"));
+                components.add(Parameter.mkInt("parameter4"));
+                components.add(num1, 4);
+                components.add(num2, 4);
+                components.add(num3, 4);
+                components.add(Components.ADD, 4);
+                components.add(Components.SUB, 4);
+                components.add(Components.GT, 4);
+                components.add(Components.GE, 4);
+                components.add(Components.MINUS, 4);
+                components.add(Components.ITE, 8);
+                components.add(Components.AND, 4);
+                components.add(Components.OR, 4);
+                components.add(Components.NOT, 2);
+                break;
+        }
         return components;
     }
 
@@ -85,6 +124,15 @@ public class Median implements Subject {
     }
 
     @Override
+    public List<String> getComponentsIds() {
+        ArrayList<String> ids = new ArrayList<>();
+        ids.add("adhoc");
+        ids.add("25");
+        ids.add("50");
+        return ids;
+    }
+
+    @Override
     public List<AssignmentTestCase> getTestSuite(String id, boolean useBVEncoding) {
         List<AssignmentTestCase> whitebox = new ArrayList<>();
         List<AssignmentTestCase> blackbox = new ArrayList<>();
@@ -97,22 +145,23 @@ public class Median implements Subject {
         }
         all.addAll(whitebox);
         all.addAll(blackbox);
-        if (id.equals("whitebox")) {
-            return whitebox;
-        } else if (id.equals("blackbox")) {
-            return blackbox;
-        } else {
-            return all;
+        switch (id) {
+            case "whitebox":
+                return whitebox;
+            case "blackbox":
+                return blackbox;
+            default:
+                return all;
         }
     }
 
     @Override
-    public Multiset<Node> getComponents(boolean useBVEncoding) {
+    public Multiset<Node> getComponents(String set, String testId, boolean useBVEncoding) {
         if (useBVEncoding) {
             throw new UnsupportedOperationException();
             //return gradeBVComponents();
         } else {
-            return gradeIntComponents();
+            return gradeIntComponents(set);
         }
     }
 

@@ -44,7 +44,7 @@ public class ICFP implements Subject {
         ids.add("2");
         ids.add("3");
         ids.add("4");
-        return null;
+        return ids;
     }
 
     @Override

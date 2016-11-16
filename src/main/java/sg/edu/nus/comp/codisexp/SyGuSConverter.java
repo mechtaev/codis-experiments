@@ -398,7 +398,7 @@ public class SyGuSConverter {
             //assume they all are BitVec 64 literals
             String text = ctx.getText();
             assert text.charAt(0) == '#' && text.charAt(0) == 'x';
-            this.lastTermStack.push(BVConst.ofHEXString(text.substring(2), 64));
+            this.components.add(BVConst.ofHEXString(text.substring(2), 64));
         }
 
         @Override
